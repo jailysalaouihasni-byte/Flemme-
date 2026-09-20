@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Flemme — Angèle</title>
+
+  <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+
+      font-family: Arial, Helvetica, sans-serif;
+
+      background: #020604;
+      color: white;
+    }
+
+
+    /* ========================= */
+    /* VIDÉO DE FOND */
+    /* ========================= */
+
+    #background-video {
+
+      position: fixed;
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      z-index: 0;
+
+      filter:
+        brightness(.32)
+        saturate(.85)
+        contrast(1.05);
+
+      transform: scale(1.08);
+
+      transition:
+        filter 2.5s ease,
+        transform 6s ease;
+    }
+
+
+    #background-video.playing {
+
+      filter:
+        brightness(.48)
+        saturate(.95)
+        contrast(1.05);
+
+      transform: scale(1.02);
+    }
+
+
+    /* voile vert sombre */
+
+    #video-overlay {
+
+      position: fixed;
+      inset: 0;
+
+      z-index: 1;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(3, 12, 8, .82) 0%,
+          rgba(5, 22, 14, .58) 42%,
+          rgba(3, 12, 8, .22) 100%
+        );
+    }
+
+
+
+    /* ========================= */
+    /* ÉCRAN D'ACCUEIL */
+    /* ========================= */
+
+    #welcome-screen {
+
+      position: fixed;
+      inset: 0;
+
+      z-index: 10;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
+
+      text-align: center;
+
+      background:
+        radial-gradient(
+          circle at 50% 35%,
+          #173527 0%,
+          #07110c 45%,
+          #020504 100%
+        );
+
+      transition:
+        opacity 1.2s ease,
+        visibility 1.2s ease,
+        transform 1.2s ease;
+    }
+
+
+    #welcome-screen.hidden {
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform: scale(1.06);
+
+      pointer-events: none;
+    }
+
+
+    .music-logo {
+
+      width: 105px;
+      height: 105px;
+
+      margin-bottom: 28px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background:
+        rgba(88, 145, 105, .18);
+
+      border:
+        1px solid rgba(184, 229, 196, .35);
+
+      backdrop-filter: blur(10px);
+
+      box-shadow:
+
+        0 0 30px rgba(104, 170, 123, .22),
+
+        0 0 90px rgba(44, 100, 64, .22);
+
+      animation:
+        floatLogo 4s ease-in-out infinite;
+    }
+
+
+    .music-logo span {
+
+      font-size: 45px;
+
+      color: #d9eddf;
+    }
+
+
+    h1 {
+
+      font-size:
+        clamp(38px, 7vw, 72px);
+
+      font-weight: 500;
+
+      letter-spacing: 3px;
+
+      margin-bottom: 10px;
+    }
+
+
+    .subtitle {
+
+      font-size: 17px;
+
+      line-height: 1.7;
+
+      color:
+        rgba(220, 235, 224, .65);
+
+      margin-bottom: 38px;
+    }
+
+
+    #open-button {
+
+      padding: 16px 32px;
+
+      min-width: 230px;
+
+      border-radius: 50px;
+
+      border:
+        1px solid rgba(210, 240, 220, .32);
+
+      background:
+        rgba(45, 90, 58, .42);
+
+      color: white;
+
+      font-size: 16px;
+
+      cursor: pointer;
+
+      backdrop-filter: blur(12px);
+
+      box-shadow:
+        0 10px 40px rgba(0, 0, 0, .35);
+
+      transition:
+        transform .25s ease,
+        background .25s ease,
+        box-shadow .25s ease;
+    }
+
+
+    #open-button:hover {
+
+      transform: scale(1.05);
+
+      background:
+        rgba(66, 119, 82, .55);
+
+      box-shadow:
+        0 15px 45px rgba(35, 92, 52, .35);
+    }
+
+
+    #open-button:active {
+
+      transform: scale(.97);
+    }
+
+
+
+    /* ========================= */
+    /* ÉCRAN PRINCIPAL */
+    /* ========================= */
+
+    #animation-screen {
+
+      position: relative;
+
+      z-index: 2;
+
+      width: 100%;
+      min-height: 100vh;
+
+      display: flex;
+
+      align-items: center;
+
+      opacity: 0;
+
+      transition:
+        opacity 1.5s ease;
+    }
+
+
+    #animation-screen.visible {
+
+      opacity: 1;
+    }
+
+
+
+    /* ========================= */
+    /* ZONE PAROLES */
+    /* ========================= */
+
+    .lyrics-zone {
+
+      width: 58%;
+
+      height: 100vh;
+
+      display: flex;
+
+      align-items: flex-start;
+
+      padding-left: 7vw;
+
+      padding-top: 220px;
+
+      overflow: hidden;
+    }
+
+
+    #lyrics-container {
+
+      width: 100%;
+
+      max-width: 650px;
+
+      transition:
+        transform 1s cubic-bezier(.22, .61, .36, 1);
+    }
+
+
+
+    /* ligne normale */
+
+    .lyric-line {
+
+      min-height: 72px;
+
+      display: flex;
+
+      align-items: center;
+
+      font-size:
+        clamp(25px, 3vw, 44px);
+
+      font-weight: 600;
+
+      line-height: 1.22;
+
+      letter-spacing: -.5px;
+
+      color:
+        rgba(220, 235, 224, .18);
+
+      opacity: .25;
+
+      transform:
+        translateX(-8px)
+        scale(.96);
+
+      text-shadow:
+        0 2px 18px rgba(0, 0, 0, .55);
+
+      transition:
+
+        opacity .7s ease,
+
+        color .7s ease,
+
+        transform .7s ease,
+
+        text-shadow .7s ease;
+    }
+
+
+
+    /* ligne chantée */
+
+    .lyric-line.active {
+
+      color:
+        #f2f6f2;
+
+      opacity: 1;
+
+      transform:
+        translateX(0)
+        scale(1);
+
+      text-shadow:
+
+        0 0 15px rgba(172, 226, 185, .28),
+
+        0 3px 20px rgba(0, 0, 0, .65);
+    }
+
+
+
+    /* anciennes paroles */
+
+    .lyric-line.passed {
+
+      color:
+        rgba(210, 230, 215, .12);
+
+      opacity: .13;
+
+      transform:
+        translateX(-4px)
+        scale(.95);
+    }
+
+
+
+    /* ========================= */
+    /* ZONE VIDE À DROITE */
+    /* ========================= */
+
+    .visual-zone {
+
+      width: 42%;
+      height: 100vh;
+
+      pointer-events: none;
+    }
+
+
+
+    /* ========================= */
+    /* ANIMATIONS */
+    /* ========================= */
+
+    @keyframes floatLogo {
+
+      0%,
+      100% {
+
+        transform:
+          translateY(0);
+      }
+
+      50% {
+
+        transform:
+          translateY(-10px);
+      }
+    }
+
+
+
+    /* ========================= */
+    /* VERSION TÉLÉPHONE */
+    /* ========================= */
+
+    @media screen and (max-width: 800px) {
+
+      #video-overlay {
+
+        background:
+
+          linear-gradient(
+            to bottom,
+            rgba(3, 12, 8, .38),
+            rgba(3, 12, 8, .78)
+          );
+      }
+
+
+      #animation-screen {
+
+        display: block;
+      }
+
+
+      .lyrics-zone {
+
+        width: 100%;
+
+        height: 100vh;
+
+        padding:
+
+          0 26px;
+
+        align-items: center;
+      }
+
+
+      #lyrics-container {
+
+        max-width: 100%;
+      }
+
+
+      .lyric-line {
+
+        min-height: 65px;
+
+        font-size:
+          clamp(23px, 7vw, 34px);
+      }
+
+
+      .visual-zone {
+
+        display: none;
+      }
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- TON EDIT ANGÈLE -->
+
+  <video
+    id="background-video"
+    muted
+    playsinline
+  >
+
+    <source
+      src="Flemme.mp4"
+      type="video/mp4"
+    >
+
+  </video>
+
+
+
+  <div id="video-overlay"></div>
+
+
+
+  <!-- ========================= -->
+  <!-- ACCUEIL -->
+  <!-- ========================= -->
+
+  <section id="welcome-screen">
+
+
+    <div class="music-logo">
+
+      <span>♫</span>
+
+    </div>
+
+
+    <h1>
+      Flemme
+    </h1>
+
+
+    <p class="subtitle">
+
+      Angèle
+
+      <br>
+
+      ♡
+
+    </p>
+
+
+    <button id="open-button">
+
+      Ouvrir l'expérience
+
+    </button>
+
+
+  </section>
+
+
+
+  <!-- ========================= -->
+  <!-- ÉCRAN PRINCIPAL -->
+  <!-- ========================= -->
+
+  <main id="animation-screen">
+
+
+    <section class="lyrics-zone">
+
+
+      <div id="lyrics-container">
+
+
+        <p class="lyric-line" data-time="9">Une soirée pluvieuse</p>
+
+<p class="lyric-line" data-time="12">Encore, la flemme de bouger</p>
+
+<p class="lyric-line" data-time="15">La flemme de bouger</p>
+
+<p class="lyric-line" data-time="17">Ambiance canapé-télé jusque tard</p>
+
+<p class="lyric-line" data-time="20">Voilà, j'suis dans un mauvais mood</p>
+
+<p class="lyric-line" data-time="23">On m'attend quelque part</p>
+
+<p class="lyric-line" data-time="26">Les rues s'allument</p>
+
+<p class="lyric-line" data-time="29">Les gens sortent, comme hier</p>
+
+<p class="lyric-line" data-time="35">Les filles sont belles</p>
+
+<p class="lyric-line" data-time="38">Sous ce ciel couvert</p>
+
+<p class="lyric-line" data-time="43">Who the hell do you think you are</p>
+
+<p class="lyric-line" data-time="46">Staying in bed instead of going out</p>
+
+<p class="lyric-line" data-time="52">Who the hell do you think you are</p>
+
+<p class="lyric-line" data-time="54">Staying in bed instead of standing proud</p>
+
+<p class="lyric-line" data-time="60">Sortir, c'est pour les nuls</p>
+
+<p class="lyric-line" data-time="62">Toute façon j'ai pas la thune</p>
+
+<p class="lyric-line" data-time="64">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="66">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="69">Sortir, c'est pour les nuls</p>
+
+<p class="lyric-line" data-time="71">Toute façon j'ai pas la thune</p>
+
+<p class="lyric-line" data-time="73">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="75">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="78">Laissez-moi tranquille</p>
+
+<p class="lyric-line" data-time="80">Ce soir, la flemme d'éviter</p>
+
+<p class="lyric-line" data-time="83">Les mauvais regards</p>
+
+<p class="lyric-line" data-time="86">Team jogging dans l'appart</p>
+
+<p class="lyric-line" data-time="87">Sans perdre mon portable</p>
+
+<p class="lyric-line" data-time="88">Ma dignité, mes clefs</p>
+
+<p class="lyric-line" data-time="90">J'suis dans un mauvais mood</p>
+
+<p class="lyric-line" data-time="92">Je répondrai plus tard</p>
+
+<p class="lyric-line" data-time="95">Paris s'allume</p>
+
+<p class="lyric-line" data-time="97">Ce qui manque, c'est Bruxelles</p>
+
+<p class="lyric-line" data-time="104">Y a toute la Fame</p>
+
+<p class="lyric-line" data-time="107">Encore plus la flemme</p>
+
+<p class="lyric-line" data-time="112">Who the hell do you think you are</p>
+
+<p class="lyric-line" data-time="115">Staying in bed instead of going out</p>
+
+<p class="lyric-line" data-time="120">Who the hell do you think you are</p>
+
+<p class="lyric-line" data-time="123">Staying in bed instead of standing proud</p>
+
+<p class="lyric-line" data-time="129">Sortir, c'est pour les nuls</p>
+
+<p class="lyric-line" data-time="131">Toute façon j'ai pas la thune</p>
+
+<p class="lyric-line" data-time="133">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="135">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="138">Sortir, c'est pour les nuls</p>
+
+<p class="lyric-line" data-time="140">Toute façon j'ai pas la thune</p>
+
+<p class="lyric-line" data-time="142">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="143">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="147">Paris s'allume</p>
+
+<p class="lyric-line" data-time="149">Ce qui m'manque, c'est Bruxelles</p>
+
+<p class="lyric-line" data-time="155">Y a toute la Fame</p>
+
+<p class="lyric-line" data-time="159">Encore plus la flemme</p>
+
+<p class="lyric-line" data-time="164">Who the hell do you think you are</p>
+
+<p class="lyric-line" data-time="166">Staying in bed instead of going out</p>
+
+<p class="lyric-line" data-time="172">Who the hell do you think you are</p>
+
+<p class="lyric-line" data-time="175">Laying in bed instead of standing proud</p>
+
+<p class="lyric-line" data-time="181">…</p>
+
+<p class="lyric-line" data-time="198">Sortir, c'est pour les nuls</p>
+
+<p class="lyric-line" data-time="200">Toute façon j'ai pas la thune</p>
+
+<p class="lyric-line" data-time="202">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="204">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="206">Sortir, c'est pour les nuls</p>
+
+<p class="lyric-line" data-time="208">Toute façon j'ai pas la thune</p>
+
+<p class="lyric-line" data-time="210">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="212">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="214">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="216">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="219">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="221">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="223">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="225">Et j'ai la flemme</p>
+
+<p class="lyric-line" data-time="228">Je reste avec moi-même</p>
+
+<p class="lyric-line" data-time="229">Et j'ai la flemme</p>
+
+
+      </div>
+
+
+    </section>
+
+
+
+    <section class="visual-zone">
+
+    </section>
+
+
+  </main>
+
+
+
+  <!-- ========================= -->
+  <!-- MUSIQUE -->
+  <!-- ========================= -->
+
+  <audio id="music">
+
+
+    <source
+      src="Flemme.mp3"
+      type="audio/mpeg"
+    >
+
+
+  </audio>
+
+
+
+  <script>
+
+
+    const welcomeScreen =
+      document.getElementById("welcome-screen");
+
+
+    const animationScreen =
+      document.getElementById("animation-screen");
+
+
+    const openButton =
+      document.getElementById("open-button");
+
+
+    const music =
+      document.getElementById("music");
+
+
+    const video =
+      document.getElementById("background-video");
+
+
+    const lyricsContainer =
+      document.getElementById("lyrics-container");
+
+
+    const lyricLines =
+      document.querySelectorAll(".lyric-line");
+
+
+    let currentLyricIndex = -1;
+
+
+
+    /* ========================= */
+    /* DÉMARRAGE */
+    /* ========================= */
+
+
+    openButton.addEventListener(
+      "click",
+
+      async () => {
+
+        try {
+
+
+          music.currentTime = 0;
+
+          video.currentTime = 0;
+
+
+          welcomeScreen.classList.add(
+            "hidden"
+          );
+
+
+          animationScreen.classList.add(
+            "visible"
+          );
+
+
+          await music.play();
+
+
+          video.play().catch(
+            error => {
+
+              console.log(
+                "Vidéo :",
+                error
+              );
+
+            }
+          );
+
+
+          video.classList.add(
+            "playing"
+          );
+
+
+          startAnimations();
+
+
+        }
+
+        catch(error) {
+
+
+          console.error(
+            "Impossible de lancer la musique :",
+            error
+          );
+
+
+          openButton.textContent =
+            "Clique à nouveau";
+
+        }
+
+      }
+    );
+
+
+
+    /* ========================= */
+    /* RESET PAROLES */
+    /* ========================= */
+
+
+    function startAnimations() {
+
+
+      currentLyricIndex = -1;
+
+
+      lyricLines.forEach(
+        line => {
+
+          line.classList.remove(
+            "active",
+            "passed"
+          );
+
+        }
+      );
+
+
+      lyricsContainer.style.transform =
+        "translateY(0px)";
+
+    }
+
+
+
+    /* ========================= */
+    /* SYNCHRO PAROLES */
+    /* ========================= */
+
+
+    music.addEventListener(
+
+      "timeupdate",
+
+      () => {
+
+
+        const currentTime =
+          music.currentTime;
+
+
+        let newIndex = -1;
+
+
+        lyricLines.forEach(
+
+          (line, index) => {
+
+
+            const timeValue =
+              line.dataset.time;
+
+
+            if (
+              timeValue === ""
+            ) {
+
+              return;
+
+            }
+
+
+            const lineTime =
+              parseFloat(
+                timeValue
+              );
+
+
+            if (
+
+              !isNaN(lineTime)
+
+              &&
+
+              currentTime >= lineTime
+
+            ) {
+
+              newIndex = index;
+
+            }
+
+          }
+
+        );
+
+
+
+        if (
+
+          newIndex !== currentLyricIndex
+
+          &&
+
+          newIndex !== -1
+
+        ) {
+
+
+          currentLyricIndex =
+            newIndex;
+
+
+
+          lyricLines.forEach(
+
+            (line, index) => {
+
+
+              line.classList.remove(
+                "active",
+                "passed"
+              );
+
+
+              if (
+                index === currentLyricIndex
+              ) {
+
+                line.classList.add(
+                  "active"
+                );
+
+              }
+
+
+              if (
+                index < currentLyricIndex
+              ) {
+
+                line.classList.add(
+                  "passed"
+                );
+
+              }
+
+            }
+
+          );
+
+
+
+          const activeLine =
+            lyricLines[
+              currentLyricIndex
+            ];
+
+
+          const linePosition =
+            activeLine.offsetTop;
+
+
+          /*
+          300 = endroit où reste
+          la ligne chantée.
+
+          Augmente pour descendre.
+
+          Diminue pour monter.
+          */
+
+          const movement =
+            300 - linePosition;
+
+
+          lyricsContainer.style.transform =
+
+            `translateY(${movement}px)`;
+
+        }
+
+      }
+
+    );
+
+
+
+    /* ========================= */
+    /* SYNCHRO VIDÉO / MUSIQUE */
+    /* ========================= */
+
+
+    music.addEventListener(
+
+      "timeupdate",
+
+      () => {
+
+
+        if (
+
+          Math.abs(
+
+            video.currentTime
+
+            -
+
+            music.currentTime
+
+          ) > .25
+
+        ) {
+
+
+          video.currentTime =
+            music.currentTime;
+
+        }
+
+      }
+
+    );
+
+
+
+    /* ========================= */
+    /* FIN MUSIQUE */
+    /* ========================= */
+
+
+    music.addEventListener(
+
+      "ended",
+
+      () => {
+
+
+        video.pause();
+
+
+        video.classList.remove(
+          "playing"
+        );
+
+      }
+
+    );
+
+
+  </script>
+
+
+</body>
+
+</html>
